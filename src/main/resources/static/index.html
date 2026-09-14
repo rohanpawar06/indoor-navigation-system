@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Campus Navigator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<div class="container">
+    <div class="logo">Campus Navigator</div>
+
+    <div class="subtitle">
+        Find your way inside the campus easily.<br>
+        No confusion. No waiting.
+    </div>
+
+    <div class="qr-section">
+        <p>Scan the QR code at the main gate to start navigation:</p>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://localhost:8080?source=entrance" alt="QR Code" style="margin: 10px;">
+    </div>
+
+    <button class="start-btn" id="startBtn">
+        Start Navigation
+    </button>
+
+    <div class="footer-text">
+        Scan • Select • Navigate
+    </div>
+</div>
+
+<!-- JS -->
+<script src="js/main.js"></script>
+</body>
+</html>

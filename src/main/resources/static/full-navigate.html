@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indoor Navigation System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        select, button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        .path, .directions {
+            margin-bottom: 20px;
+        }
+        .highlight {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Indoor Navigation System</h1>
+    <div class="container">
+        <label for="destination">Select Destination:</label>
+        <select id="destination">
+            <option value="">-- Choose Destination --</option>
+            <option value="library">Library</option>
+            <option value="office">Office</option>
+            <option value="lab">Laboratory</option>
+            <option value="admin">Admin Block</option>
+        </select>
+        <button onclick="findPath()">Find Path</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Graph structure: nodes and edges with weights
+        const graph = {
+            entrance: { corridor: 5 },
+            corridor: { entrance: 5, library: 3, office: 4, admin: 2 },
+            library: { corridor: 3 },
+            office: { corridor: 4 },
+            stairs: { entrance: 6, lab: 2 },
+            lab: { stairs: 2 },
+            admin: { corridor: 2 }
+        };
+
+        // Locations mapping
+        const locations = {
+            entrance: "Main Entrance",
+            corridor: "Main Corridor",
+            library: "Library",
+            office: "Office",
+            stairs: "Stairs",
+            lab: "Laboratory",
+            admin: "Admin Block"
+        };
+
+        // Get current location from URL
+        function getLocationFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('location') || 'entrance';
+        }
+
+        // Dijkstra's algorithm
+        function dijkstra(graph, start, end) {
+            const distances = {};
+            const previous = {};
+            const queue = new Set();
+
+            for (let node in graph) {
+                distances[node] = Infinity;
+                previous[node] = null;
+                queue.add(node);
+            }
+            distances[start] = 0;
+
+            while (queue.size > 0) {
+                let current = null;
+                for (let node of queue) {
+                    if (current === null || distances[node] < distances[current]) {
+                        current = node;
+                    }
+                }
+
+                if (current === end) break;
+
+                queue.delete(current);
+
+                for (let neighbor in graph[current]) {
+                    let alt = distances[current] + graph[current][neighbor];
+                    if (alt < distances[neighbor]) {
+                        distances[neighbor] = alt;
+                        previous[neighbor] = current;
+                    }
+                }
+            }
+
+            // Reconstruct path
+            const path = [];
+            let current = end;
+            while (current !== null) {
+                path.unshift(current);
+                current = previous[current];
+            }
+
+            if (path[0] !== start) return null; // No path found
+
+            return path;
+        }
+
+        // Handle navigation
+        function findPath() {
+            const start = getLocationFromURL();
+            const end = document.getElementById('destination').value;
+
+            if (!end) {
+                alert('Please select a destination');
+                return;
+            }
+
+            const path = dijkstra(graph, start, end);
+            if (!path) {
+                displayResult('No path found');
+                return;
+            }
+
+            displayPath(path);
+            generateDirections(path);
+        }
+
+        // Display path
+        function displayPath(path) {
+            const pathNames = path.map(node => locations[node]);
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="path highlight">
+                    <strong>Shortest Path:</strong><br>
+                    ${pathNames.join(' → ')}
+                </div>
+            `;
+        }
+
+        // Generate directions
+        function generateDirections(path) {
+            const directions = [];
+            for (let i = 0; i < path.length - 1; i++) {
+                directions.push(`Go from ${locations[path[i]]} to ${locations[path[i+1]]}`);
+            }
+            directions.push(`You have arrived at ${locations[path[path.length-1]]}`);
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML += `
+                <div class="directions highlight">
+                    <strong>Step-by-Step Directions:</strong><br>
+                    ${directions.map(dir => `• ${dir}`).join('<br>')}
+                </div>
+            `;
+        }
+
+        // Display result
+        function displayResult(message) {
+            document.getElementById('result').innerHTML = `<p>${message}</p>`;
+        }
+
+        // Initialize
+        window.onload = function() {
+            const currentLocation = getLocationFromURL();
+            document.getElementById('result').innerHTML = `<p>Current Location: ${locations[currentLocation] || currentLocation}</p>`;
+        };
+    </script>
+</body>
+</html>

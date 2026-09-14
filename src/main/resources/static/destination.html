@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Destination</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="logo">Select Destination</div>
+
+    <div class="dropdown-section">
+        <label for="destination">Choose your destination:</label>
+        <select id="destination" class="destination-select">
+            <option value="">-- Select Destination --</option>
+            <option value="library">📚 Library</option>
+            <option value="office">🏢 Office</option>
+            <option value="lab">🧪 Laboratory</option>
+            <option value="admin">🗂 Admin Block</option>
+        </select>
+    </div>
+
+    <button class="navigate-btn" onclick="selectDestination()">Navigate</button>
+</div>
+
+<script src="js/destination.js"></script>
+</body>
+</html>
